@@ -71,6 +71,8 @@ async function run() {
       res.send(result)
     })
 
+    
+
 
 
 
@@ -80,6 +82,28 @@ async function run() {
       console.log(newhouse);
       const result = await housesCollection.insertOne(newhouse);
       res.send(result);
+    })
+
+    app.get('/allhouse', async (req, res) => {
+      console.log(req.headers)
+      const page = parseInt(req.query.page);
+      const size = parseInt(req.query.size);
+
+      const filter = req.query;
+      const query = {
+        location: { $regex: filter.search || '', $options: 'i' },
+
+      }
+      const result = await housesCollection.find(query).skip(page * size)
+      .limit(size).toArray()
+      res.send(result)
+    })
+
+
+
+    app.get('/admin-stats',  async(req, res)=>{
+      const house = await housesCollection.estimatedDocumentCount();
+      res.send({house})
     })
 
 
