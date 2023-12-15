@@ -30,6 +30,7 @@ async function run() {
 
    
     const usersCollection = client.db("rentswiftly").collection("users")
+    const housesCollection = client.db("rentswiftly").collection("allhouses")
    
     // jwt related apis
 
@@ -55,16 +56,6 @@ async function run() {
       })
     }
 
-    const verifyAdmin = async (req, res, next) => {
-      const email = req.decoded.email;
-      const query = { email: email };
-      const user = await usersCollection.findOne(query);
-      const isAdmin = user?.role === 'admin';
-      if (!isAdmin) {
-        return res.status(403).send({ message: 'forbidden access' });
-      }
-      next();
-    }
 
 
 
@@ -79,50 +70,18 @@ async function run() {
       const result = await usersCollection.insertOne(user)
       res.send(result)
     })
-    app.get('/users', verifyToken, verifyAdmin, async (req, res) => {
-      console.log(req.headers)
-      const page = parseInt(req.query.page);
-      const size = parseInt(req.query.size);
 
-      const filter = req.query;
-      const query = {
-        name: { $regex: filter.search || '', $options: 'i' },
 
-      }
-      const result = await usersCollection.find(query).skip(page * size)
-      .limit(size).toArray()
-      res.send(result)
+
+
+    // add room related apis
+    app.post('/addhouse', async (req, res) => {
+      const newhouse = req.body;
+      console.log(newhouse);
+      const result = await housesCollection.insertOne(newhouse);
+      res.send(result);
     })
 
-    app.get('/users/admin/:email', verifyToken, async (req, res) => {
-      const email = req.params.email;
-
-      if (email !== req.decoded.email) {
-        return res.status(403).send({ message: 'forbidden access' })
-      }
-
-      const query = { email: email };
-      const user = await usersCollection.findOne(query);
-      let admin = false;
-      if (user) {
-        admin = user?.role === 'admin';
-      }
-      res.send({ admin });
-    })
-
-
-    app.patch('/users/admin/:id', async (req, res) => {
-      const id = req.params.id;
-      const filter = { _id: new ObjectId(id) }
-      const updatedDoc = {
-        $set: {
-          role: 'admin'
-        }
-      }
-      const result = await usersCollection.updateOne(filter, updatedDoc);
-      res.send(result)
-
-    })
 
     
 
