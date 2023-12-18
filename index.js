@@ -115,6 +115,11 @@ async function run() {
       const result = await housebookingRequestCollection.insertOne(newhousebooking);
       res.send(result);
     })
+    app.get('/housebookingrequest', async (req, res) => {
+      const result = await housebookingRequestCollection.find().toArray()
+      res.send(result)
+    })
+    
 
 
 
