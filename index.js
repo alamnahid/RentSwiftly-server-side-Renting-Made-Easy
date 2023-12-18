@@ -31,6 +31,7 @@ async function run() {
    
     const usersCollection = client.db("rentswiftly").collection("users")
     const housesCollection = client.db("rentswiftly").collection("allhouses")
+    const housebookingRequestCollection = client.db("rentswiftly").collection("housebookingrequest")
    
     // jwt related apis
 
@@ -103,6 +104,15 @@ async function run() {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) }
       const result = await housesCollection.findOne(query);
+      res.send(result);
+    })
+
+    // house booking information
+
+    app.post('/housebookingrequest', async (req, res) => {
+      const newhousebooking = req.body;
+      console.log(newhousebooking);
+      const result = await housebookingRequestCollection.insertOne(newhousebooking);
       res.send(result);
     })
 
